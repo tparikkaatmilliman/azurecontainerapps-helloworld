@@ -1,0 +1,43 @@
+name: Trigger auto deployment for my-container-app-tjp
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/my-container-app-tjp-AutoDeployTrigger-f5c027dd-edb8-495c-9d29-1b3164b63e66.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.MYCONTAINERAPPTJP_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: acrmmacalab.azurecr.io
+          registryUsername: ${{ secrets.MYCONTAINERAPPTJP_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.MYCONTAINERAPPTJP_REGISTRY_PASSWORD }}
+          containerAppName: my-container-app-tjp
+          resourceGroup: rg-my-container-apps-tjp
+          imageToBuild: acrmmacalab.azurecr.io/my-container-app-tjp:${{ github.sha }}
+          
+            
+
+     
+
